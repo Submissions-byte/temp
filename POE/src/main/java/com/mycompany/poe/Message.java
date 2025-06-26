@@ -12,6 +12,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.nio.file.*;
+
 /**
  *
  * @author lab_services_student
@@ -24,6 +26,7 @@ public class Message {
     private StringBuffer sent = new StringBuffer();
     private StringBuffer store = new StringBuffer();
     private String[] arrStored, arrSent, arrHash, arrID, arrDisregarded, arrRecipient;
+     private static final String FILE_PATH = "messages.json";
 
     public Message(String recipient, String message, int msgNumber) {
         this.msgNumber = msgNumber;
@@ -37,7 +40,7 @@ public class Message {
         arrDisregarded = disregarded;
         arrHash = hash;
         arrID = id;
-        arrSent = sent;
+        arrSent = sent;             //passes references to arrays created in the main method
         arrStored = stored;
         arrRecipient = recipient;
     }
@@ -45,12 +48,12 @@ public class Message {
     public String getMessage() {
         return message;
     }
-    
-        public String sentForSender(String sender) {
+
+    public String sentForSender(String sender) {
         String output = "";
-        for (int i = 0; i < arrSent.length; i++) {
-            if (arrSent[i] != null) {
-                output = output + "sender:" + sender + '\n' +' ' + "recipient:" + arrRecipient[i] + '\n'+' ' + "message:" + arrSent[i] + '\n';
+        for (int i = 0; i < arrSent.length; i++) {      //the sender is passesd to the method due to Login and Message only interfacing in the main method
+            if (arrSent[i] != null) {   //null check accounts for people selecting the second option, "show recently sent messages", first
+                output = output + "sender:" + sender + '\n' + ' ' + "recipient:" + arrRecipient[i] + '\n' + ' ' + "message:" + arrSent[i] + '\n';
             }
 
         }
@@ -61,27 +64,31 @@ public class Message {
     public String longestSent() {
         String temp = "";
         for (int i = 0; i < arrSent.length; i++) {
-            if(arrSent[i] != null)
-            if (arrSent[i].length() > temp.length()) {
-                temp = arrSent[i];
+            if (arrSent[i] != null) //null check for second option chosen first or only invalid inputs given
+            {
+                if (arrSent[i].length() > temp.length()) {
+                    temp = arrSent[i];
+                }
             }
             //}
         }
         return temp;
     }
-    
-        public String longestMsg() {    //this is as per test cases and rubric but b. asks for the above
+
+    public String longestMsg() {    //this is as per test cases and rubric but b. asks for the above
         String temp = "";
         for (int i = 0; i < arrSent.length; i++) {
-            if(arrSent[i] != null)
-            if (arrSent[i].length() > temp.length()) {
-                temp = arrSent[i];
+            if (arrSent[i] != null) {
+                if (arrSent[i].length() > temp.length()) {
+                    temp = arrSent[i];
+                }
             }
-            if(arrStored[i] != null)
-            if (arrStored[i].length() > temp.length()) {
-                temp = arrStored[i];
+            if (arrStored[i] != null) {
+                if (arrStored[i].length() > temp.length()) {
+                    temp = arrStored[i];
+                }
             }
-            
+
             //}
         }
         return temp;
@@ -89,170 +96,158 @@ public class Message {
 
     public String idSearch(String ID) {
         String output = "";
-        
+
         for (int i = 0; i < arrID.length; i++) {
-            if(arrID[i] != null){
-            if (arrID[i].contains(ID) && ID.contains(arrID[i])) {
-                output = output +"recipient: "+ arrRecipient[i];
-                if (arrDisregarded[i] != null) {
-                    output = output + ' ' +"message: "+ arrDisregarded[i];
-                    return output;
+            if (arrID[i] != null) { //checks null for invalid inputs or second option selcted first
+                if (arrID[i].contains(ID) && ID.contains(arrID[i])) {
+                    output = output + "recipient: " + arrRecipient[i];
+                    if (arrDisregarded[i] != null) {
+                        output = output + ' ' + "message: " + arrDisregarded[i];
+                        return output;  //presume deleted/discarded messages need to be included due to the existence of the array for them, otherwise would just set corresponding array values to null
+                        //but then arrDisregarded would never be accessed or used
+                    }
+                    if (arrStored[i] != null) {
+                        output = output + ' ' + "message: " + arrStored[i];
+                        return output;
+                    }
+                    if (arrSent[i] != null) {
+                        output = output + ' ' + "message:" + arrSent[i];
+                        return output;
+                    }
                 }
-                if (arrStored[i] != null) {
-                    output = output + ' ' +"message: "+ arrStored[i];
-                    return output;
-                }
-                if (arrSent[i] != null) {
-                    output = output + ' ' +"message:"+ arrSent[i];
-                    return output;
-                }
-            }
             }
         }
         return "not found";
     }
 
-        public String idSearchForTest(String ID) { //formatted appropriately for test, excluding titles
+    public String idSearchForTest(String ID) { //formatted appropriately for test, excluding titles
         String output = "";
-        
+
         for (int i = 0; i < arrID.length; i++) {
-            if(arrID[i] != null){
-            if (arrID[i].contains(ID) && ID.contains(arrID[i])) {
-                output = output + arrRecipient[i];
-                if (arrDisregarded[i] != null) {
-                    output = output +'\t'+ arrDisregarded[i];
-                    return output;
+            if (arrID[i] != null) {
+                if (arrID[i].contains(ID) && ID.contains(arrID[i])) {
+                    output = output + arrRecipient[i];
+                    if (arrDisregarded[i] != null) {
+                        output = output + '\t' + arrDisregarded[i];
+                        return output;
+                    }
+                    if (arrStored[i] != null) {
+                        output = output + '\t' + arrStored[i];
+                        return output;
+                    }
+                    if (arrSent[i] != null) {
+                        output = output + '\t' + arrSent[i];
+                        return output;
+                    }
                 }
-                if (arrStored[i] != null) {
-                    output = output +'\t'+ arrStored[i];
-                    return output;
-                }
-                if (arrSent[i] != null) {
-                    output = output +'\t'+ arrSent[i];
-                    return output;
-                }
-            }
             }
         }
         return "not found";
     }
-    
+
     public String recipientSearch(String recipient) {
         String output = "";
         boolean found = false;
         for (int i = 0; i < arrRecipient.length; i++) {
-            if(arrRecipient[i] != null)
-            if (arrRecipient[i].contains(recipient)) {
-                found = true;
-//                if (arrDisregarded[i] != null) {
-//                    output = output + arrDisregarded[i] + '\n';
-//
-//                }
-            
-//            if (arrStored[i] != null) {
-//                output = output + arrStored[i] + '\n';
-//
-//            }
-            if (arrSent[i] != null) {
-                output = output + arrSent[i] + '\n';
+            if (arrRecipient[i] != null) {
+                if (arrRecipient[i].contains(recipient)) {
 
+//excludes stored or deleted, as it's only meant to search for sent messages
+                    if (arrSent[i] != null) {
+                        found = true;
+                        output = output + arrSent[i] + '\n';
+
+                    }
+                }
             }
-            }
-            if(!found)
-                return "Recipient not found.";
+
+        }
+        if (!found) {   //boolean accounts for case where the recipient is not found, would use return but it's supposed to be all messages sent to that recipient
+            return "Recipient not found.";
         }
         return output;      //check for empty pls
     }
-    
-        public String recipientSearchForTest(String recipient) {
+
+    public String recipientSearchForTest(String recipient) {
         String output = "";
+        boolean found = false;
         for (int i = 0; i < arrRecipient.length; i++) {
-            if(arrRecipient[i] != null)
-            if (arrRecipient[i].contains(recipient)) {
-//                if (arrDisregarded[i] != null) {
-//                    output = output + arrDisregarded[i] + '\n';
-//
-//                }
-            
-            if (arrStored[i] != null) {     //modified to include stored messages as per test requirements
-                output = output + arrStored[i] + '\n';
+            if (arrRecipient[i] != null) {
+                if (arrRecipient[i].contains(recipient)) {
+                    if (arrStored[i] != null) {     //modified to include stored messages as per test requirements
+                        output = output + arrStored[i] + '\n';
+                        found = true;
+                    }
+                    if (arrSent[i] != null) {
+                        output = output + arrSent[i] + '\n';
+                        found = true;
 
-            }
-            if (arrSent[i] != null) {
-                output = output + arrSent[i] + '\n';
-
-            }
+                    }
+                }
             }
         }
-        return output;      //check for empty pls
+        if (!found) {
+            return "Recipient not found.";
+        }
+        return output;
     }
 
     public void hashDelete(String hash) {
         for (int i = 0; i < arrHash.length; i++) {
-            if(arrHash[i] != null)
-            if (arrHash[i].contains(hash) && hash.contains(arrHash[i])) {
-//                if (arrDisregarded[i] != null) {
-//                    return;
-//
-//                }
-                if (arrStored[i] != null) {
-                    arrDisregarded[i] = arrStored[i];
-                    arrStored[i] = null;
-                    JOptionPane.showMessageDialog(null, "Message deleted.", "Hash Delete", JOptionPane.DEFAULT_OPTION);
-                    return;
+            if (arrHash[i] != null) {
+                if (arrHash[i].contains(hash) && hash.contains(arrHash[i])) {
+                    if (arrStored[i] != null) {
+                        arrDisregarded[i] = arrStored[i];   //deleted messages are stored in arrDisregarded
+                        arrStored[i] = null;                // the reference to the message is then set to null 
+                        JOptionPane.showMessageDialog(null, "Message deleted.", "Hash Delete", JOptionPane.DEFAULT_OPTION);
+                        return; //ends loop and method as soon as the message is found and deleted
 
-                }
-                if (arrSent[i] != null) {
-                    arrDisregarded[i] = arrSent[i];
-                    arrSent[i] = null;
-                    JOptionPane.showMessageDialog(null, "Message deleted.", "Hash Delete", JOptionPane.DEFAULT_OPTION);
-                    return;
+                    }
+                    if (arrSent[i] != null) {
+                        arrDisregarded[i] = arrSent[i];
+                        arrSent[i] = null;
+                        JOptionPane.showMessageDialog(null, "Message deleted.", "Hash Delete", JOptionPane.DEFAULT_OPTION);
+                        return; //ends loop and method as soon as the message is found and deleted
+                    }
                 }
             }
         }
         JOptionPane.showMessageDialog(null, "Hash not found.", "Hash Delete", JOptionPane.DEFAULT_OPTION);
-        //potential for not found
+        //if the return statements don't execute the message was never found
     }
-    
-        public void hashDeleteForTest(String hash) {    //not JOption for testing purposes
-        for (int i = 0; i < arrHash.length; i++) {
-            if(arrHash[i] != null)
-            if (arrHash[i].contains(hash) && hash.contains(arrHash[i])) {
-//                if (arrDisregarded[i] != null) {
-//                    return;
-//
-//                }
-                if (arrStored[i] != null) {
-                    arrDisregarded[i] = arrStored[i];
-                    arrStored[i] = null;
-                 //   JOptionPane.showMessageDialog(null, "Message deleted.", "Hash Delete", JOptionPane.DEFAULT_OPTION);
-                    return;
 
-                }
-                if (arrSent[i] != null) {
-                    arrDisregarded[i] = arrSent[i];
-                    arrSent[i] = null;
-                 //   JOptionPane.showMessageDialog(null, "Message deleted.", "Hash Delete", JOptionPane.DEFAULT_OPTION);
-                    return;
+    public void hashDeleteForTest(String hash) {    //not JOption for testing purposes
+        for (int i = 0; i < arrHash.length; i++) {
+            if (arrHash[i] != null) {
+                if (arrHash[i].contains(hash) && hash.contains(arrHash[i])) {
+                    if (arrStored[i] != null) {
+                        arrDisregarded[i] = arrStored[i];
+                        arrStored[i] = null;
+                        return;
+
+                    }
+                    if (arrSent[i] != null) {
+                        arrDisregarded[i] = arrSent[i];
+                        arrSent[i] = null;
+                        return;
+                    }
                 }
             }
         }
-       // JOptionPane.showMessageDialog(null, "Hash not found.", "Hash Delete", JOptionPane.DEFAULT_OPTION);
-        //potential for not found
     }
 
     public String sentReport() {
         String output = "";
         for (int i = 0; i < arrSent.length; i++) {
             if (arrSent[i] != null) {
-                output = output + "hash:" + arrHash[i] +'\n'+' ' + "recipient:" + arrRecipient[i] + '\n'+' ' + "message:" + arrSent[i] + '\n';
+                output = output + "hash:" + arrHash[i] + '\n' + ' ' + "recipient:" + arrRecipient[i] + '\n' + ' ' + "message:" + arrSent[i] + '\n';
             }
 
         }
-        return output;
+        return output;  //if titles are missing should be clear no messages were found for sent report
 
     }
-    
+
     public String getHash() {
         return hash;
     }
@@ -283,7 +278,7 @@ public class Message {
             ID += (int) Math.floor(Math.random() * 10); //adds one random digit at a time to form the ID
         }
     }
-        
+
     public boolean checkMessageID() {//does as instructed, does not confirm format of ID
         return ID.length() <= 10;
     }
@@ -311,7 +306,7 @@ public class Message {
             if (checkRecipientCell() == 0 && this.message.length() <= 250) {
                 JOptionPane.showMessageDialog(null, lines, "Message information", JOptionPane.INFORMATION_MESSAGE);
 
-                arrSent[msgNumber] = this.message;
+                arrSent[msgNumber] = this.message;         //populates arrays
                 arrHash[msgNumber] = this.hash;
                 arrID[msgNumber] = this.ID;
                 arrRecipient[msgNumber] = this.recipient;
@@ -334,7 +329,7 @@ public class Message {
 
         if (option == 1) {//carries out procedures for 'Discard Message'
             arrDisregarded[msgNumber] = this.message;
-            arrHash[msgNumber] = this.hash;
+            arrHash[msgNumber] = this.hash;             //populates arrays
             arrID[msgNumber] = this.ID;
             arrRecipient[msgNumber] = this.recipient;
             return "Press 0 to delete message.";
@@ -342,10 +337,12 @@ public class Message {
         if (option == 2) {
             //carries out procedures for 'Store Message''
             arrStored[msgNumber] = this.message;
-            arrHash[msgNumber] = this.hash;
+            arrHash[msgNumber] = this.hash;             //populates arrays
             arrID[msgNumber] = this.ID;
             arrRecipient[msgNumber] = this.recipient;
+            storeMessage(this.message);
             store.append(this.message);
+            
             return "Message successfully stored.";
         }
         return "Closed";//incase the user simply closes the JOptionPane
@@ -377,43 +374,55 @@ public class Message {
     //code attribution
     //ChatGPT. (2024). ChatGPT (Dec 11
     //version) [Large language
-    //model]. https://chatgpt.com/share/6804bfef-0a94-8005-b060-aba98aeaa2e7
-    public static void storeMessage(String filePath, String message, String sender) {
-        // Create a JSON object for the message
-        JSONObject messageObject = new JSONObject();
-        messageObject.put("sender", sender);
-        messageObject.put("message", message);
-        messageObject.put("timestamp", "2025-05-26T12:00:00");  // Replace with actual timestamp if needed
+    //model]. https://chatgpt.com/share/685d602e-0b18-8013-963a-198f569f0522
+     public static void storeMessage(String message) {
+        try {
+            JSONArray messages;
 
-        // Check if the file exists
-        File file = new File(filePath);
-        JSONArray messagesArray = new JSONArray();
-
-        if (file.exists()) {
-            try (FileReader reader = new FileReader(file)) {
-                // Read the existing messages from the JSON file
-                int data = reader.read();
-                StringBuilder jsonString = new StringBuilder();
-                while (data != -1) {
-                    jsonString.append((char) data);
-                    data = reader.read();
-                }
-                // Parse the existing JSON content into an array
-                messagesArray = new JSONArray(jsonString.toString());
-            } catch (IOException e) {
-                System.out.println("Error reading the file: " + e.getMessage());
+            // Read existing messages
+            if (Files.exists(Paths.get(FILE_PATH))) {
+                String content = Files.readString(Paths.get(FILE_PATH));
+                messages = new JSONArray(content);
+            } else {
+                messages = new JSONArray();
             }
-        }
 
-        // Append the new message to the JSON array
-        messagesArray.put(messageObject);
+            // Add new message
+            messages.put(message);
 
-        // Write the updated messages back to the file
-        try (FileWriter fileWriter = new FileWriter(filePath)) {
-            fileWriter.write(messagesArray.toString(4));  // Pretty print with indentation of 4 spaces
+            // Write updated messages to file
+            Files.write(Paths.get(FILE_PATH), messages.toString(2).getBytes(),
+                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+            System.out.println("Message stored: " + message);
         } catch (IOException e) {
-            System.out.println("Error writing to the file: " + e.getMessage());
+            System.err.println("Error storing message: " + e.getMessage());
         }
     }
+
+    // Function to retrieve all messages as an array
+    public static String[] retrieveMessages() {
+        try {
+            if (!Files.exists(Paths.get(FILE_PATH))) {
+                return new String[0]; // Empty array
+            }
+
+            String content = Files.readString(Paths.get(FILE_PATH));
+            JSONArray messages = new JSONArray(content);
+
+            // Convert JSONArray to String[]
+            String[] messageArray = new String[messages.length()];
+            for (int i = 0; i < messages.length(); i++) {
+                messageArray[i] = messages.getString(i);
+            }
+
+            return messageArray;
+
+        } catch (IOException e) {
+            System.err.println("Error reading messages: " + e.getMessage());
+            return new String[0];
+        }
+    }
+
 
 }
