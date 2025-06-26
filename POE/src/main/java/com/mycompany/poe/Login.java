@@ -111,6 +111,12 @@ public class Login {
         return "Username or password incorrect, please try again.";
     }
 
+    public boolean isRegisterred() {
+        return registerred;
+    }
+    
+    
+
     //This is mine 'cause unsure of telephone messaging.
     public String phoneMessaging() {
         if (checkCellPhoneNumber(phone)) {
