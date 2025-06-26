@@ -17,9 +17,11 @@ public class POE {
 
         //       Login user = new Login();
         Scanner scan = new Scanner(System.in);
-
-        System.out.println("Register:");
-
+        Login user = new Login(null, null, null, null, null);
+        
+        boolean registered = false;
+        while(!registered){
+            System.out.println("Register:");
         System.out.println("enter username");
         name = scan.nextLine();
         System.out.println("enter password");
@@ -31,20 +33,26 @@ public class POE {
         System.out.println("enter last name");
         last = scan.nextLine();
 
-        Login user = new Login(name, pass, phone, first, last);
+        user = new Login(name, pass, phone, first, last);
 
         System.out.println(user.phoneMessaging());
 
         System.out.println(user.registerUser());
+        registered = user.isRegisterred();
+    }
+        String pass1 = "";
+        String name1 = "";
+        while(!(user.loginUser(pass1, name1))){
         System.out.println("Login:");
 
         System.out.println("enter username");
-        name = scan.nextLine();
+        name1 = scan.nextLine();
         System.out.println("enter password");
-        pass = scan.nextLine();
+        pass1 = scan.nextLine();
 
-        System.out.println(user.returnLoginStatus(pass, name));
-        if (user.loginUser(pass, name)) {
+        System.out.println(user.returnLoginStatus(pass1, name1));
+        }
+        if (user.loginUser(pass1, name1)) {
             int option = 0;
             String[] disregarded = new String[1];
             String[] hash = new String[1];   //chilled as arrays are objects and only a reference to them is passed
@@ -57,8 +65,7 @@ public class POE {
                 //retrieves input
                 if (option == 2) //Displays output for "Show recent messages"             
                 {
-                    //JOptionPane.showInternalMessageDialog(null, "Coming Soon.", "Show recent messages", JOptionPane.DEFAULT_OPTION);
-
+                    //altered to change from "Coming Soon", as the feature has been implemented
                     Message temp = new Message("+27718693002", "Hi Mike, can you join us for dinner tonight", 0);
 
                     temp.initiateArrs(stored, sent, hash, id, disregarded, recipient1);
@@ -115,7 +122,7 @@ public class POE {
                     JOptionPane.showMessageDialog(null, count, "total number of messages", JOptionPane.DEFAULT_OPTION);//I'm under the impression that the total number of messages accumulated that was aluded to refers to the number of messages sent, as indicated by the test cases
                 }
             }
-            //alter coming soon. use forUser in main. tests good. do chatgpt. comment
+            
         }
         //}
         scan.close();
